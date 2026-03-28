@@ -130,6 +130,27 @@
       </section>
 
     </div>
+
+    <!-- NEXT MISSION -->
+    <section class="mission-section reveal" style="--delay: 500ms">
+      <div class="mission-header">
+        <div class="mission-header__left">
+          <span class="mission-label">NEXT MISSION</span>
+          <span class="mission-level" id="missionLevel">LEVEL <span id="levelNum">1</span></span>
+        </div>
+        <div class="mission-scanline"></div>
+      </div>
+      <div class="mission-display" id="missionDisplay">
+        <div class="mission-cursor"></div>
+        <p class="mission-text" id="missionText">ミッションを受諾しますか？</p>
+      </div>
+      <button class="mission-btn" id="missionBtn">
+        <span class="mission-btn__glow"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>ACCEPT MISSION</span>
+      </button>
+    </section>
+
   </main>
   <script>
     // ── Theme ──
@@ -157,6 +178,69 @@
     }, { threshold: 0.15 });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── NEXT MISSION ──
+    const missions = [
+      '5分だけ、気になっていることを試す',
+      '今日覚えたことを1行メモする',
+      '新しいボタンやアニメーションを追加する',
+      'README.md に一行、今日の発見を書く',
+      'AIに「今日できること」を1つ聞いてみる',
+      'GitHubを開いて、気になるリポジトリをスターする',
+      'ターミナルで新しいコマンドを1つ覚える',
+      '自分のコードを声に出して読んでみる',
+      '10分間、スマホを置いてコードと向き合う',
+      '昨日より少し難しいことに挑戦する',
+    ];
+
+    const gradients = [
+      'linear-gradient(135deg, #1e0a3c 0%, #0d1b4a 50%, #001a2e 100%)',
+      'linear-gradient(135deg, #0a0a2e 0%, #1a0a3c 50%, #0d2b1a 100%)',
+      'linear-gradient(135deg, #1a0a2e 0%, #0a2040 50%, #001530 100%)',
+      'linear-gradient(135deg, #0d0d2e 0%, #1a1040 50%, #0a1a30 100%)',
+      'linear-gradient(135deg, #0a1a3c 0%, #1a0a28 50%, #001a20 100%)',
+    ];
+
+    let level = 1;
+    let lastMissionIdx = -1;
+    let lastGradientIdx = -1;
+
+    const missionText = document.getElementById('missionText');
+    const levelNum = document.getElementById('levelNum');
+    const missionBtn = document.getElementById('missionBtn');
+    const missionDisplay = document.getElementById('missionDisplay');
+    const missionSection = document.querySelector('.mission-section');
+
+    function pickRandom(arr, last) {
+      let idx;
+      do { idx = Math.floor(Math.random() * arr.length); } while (arr.length > 1 && idx === last);
+      return idx;
+    }
+
+    missionBtn.addEventListener('click', () => {
+      const mIdx = pickRandom(missions, lastMissionIdx);
+      const gIdx = pickRandom(gradients, lastGradientIdx);
+      lastMissionIdx = mIdx;
+      lastGradientIdx = gIdx;
+
+      // テキストアニメーション
+      missionDisplay.classList.add('mission-display--flash');
+      setTimeout(() => {
+        missionText.textContent = missions[mIdx];
+        missionDisplay.classList.remove('mission-display--flash');
+        missionDisplay.classList.add('mission-display--in');
+        setTimeout(() => missionDisplay.classList.remove('mission-display--in'), 400);
+      }, 200);
+
+      // 背景グラデーション
+      missionSection.style.setProperty('--mission-bg', gradients[gIdx]);
+
+      // LEVEL UP
+      level++;
+      levelNum.textContent = level;
+      levelNum.parentElement.classList.add('mission-level--up');
+      setTimeout(() => levelNum.parentElement.classList.remove('mission-level--up'), 500);
+    });
   </script>
 </body>
 </html>
