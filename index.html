@@ -133,9 +133,10 @@
 
     <!-- NEXT MISSION -->
     <section class="mission-section reveal" style="--delay: 500ms">
+      <div class="mission-flash-overlay" id="missionFlashOverlay"></div>
       <div class="mission-header">
         <div class="mission-header__left">
-          <span class="mission-label">NEXT MISSION</span>
+          <span class="mission-label" id="missionLabel">NEXT MISSION</span>
           <span class="mission-level" id="missionLevel">LEVEL <span id="levelNum">1</span></span>
         </div>
         <div class="mission-scanline"></div>
@@ -149,6 +150,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         <span>ACCEPT MISSION</span>
       </button>
+      <div class="levelup-toast" id="levelupToast">▲ LEVEL UP!</div>
     </section>
 
   </main>
@@ -181,16 +183,32 @@
 
     // ── NEXT MISSION ──
     const missions = [
-      '5分だけ、気になっていることを試す',
-      '今日覚えたことを1行メモする',
-      '新しいボタンやアニメーションを追加する',
+      // AI 学習
+      'Claude に今日の学びを要約させてみる',
+      'プロンプトを1つ改善して結果を比べてみる',
+      'ChatGPT と Claude に同じ質問をして違いをメモする',
+      'AIに「自分のワークフロー」を分析させてみる',
+      '気になるAIツールを5分だけ触ってみる',
+      // GitHub
+      'GitHubで気になるリポジトリを1つスターする',
+      'git add → commit → push を実際にやってみる',
+      'Issuesを1件読んで内容を理解する',
+      'ローカルで新しいブランチを切って何か試す',
+      'gitignore に何が書かれているか確認する',
+      // 小さなアウトプット
       'README.md に一行、今日の発見を書く',
-      'AIに「今日できること」を1つ聞いてみる',
-      'GitHubを開いて、気になるリポジトリをスターする',
-      'ターミナルで新しいコマンドを1つ覚える',
-      '自分のコードを声に出して読んでみる',
-      '10分間、スマホを置いてコードと向き合う',
-      '昨日より少し難しいことに挑戦する',
+      '学んだことを140字でXに投稿する',
+      'Markdown で今日の学習ログを書く',
+      '気になる技術記事を1本読んでメモする',
+      '自分のコードにコメントを1行追加する',
+    ];
+
+    const rareMissions = [
+      '今日学んだことをブログ記事にしてみる（下書きでOK）',
+      'OSSリポジトリに初めてのIssueかコメントを残してみる',
+      '自分の GitHub プロフィール README をアップデートする',
+      'AIで小さなWebツールを1つ作りGitHubに上げてみる',
+      '学んだことをSNSにスレッドで投稿してみる',
     ];
 
     const gradients = [
@@ -201,15 +219,23 @@
       'linear-gradient(135deg, #0a1a3c 0%, #1a0a28 50%, #001a20 100%)',
     ];
 
+    const rareGradients = [
+      'linear-gradient(135deg, #1c0800 0%, #2d1500 50%, #1a0d00 100%)',
+      'linear-gradient(135deg, #2a1200 0%, #1e0c00 50%, #120800 100%)',
+    ];
+
     let level = 1;
     let lastMissionIdx = -1;
     let lastGradientIdx = -1;
 
-    const missionText = document.getElementById('missionText');
-    const levelNum = document.getElementById('levelNum');
-    const missionBtn = document.getElementById('missionBtn');
+    const missionText    = document.getElementById('missionText');
+    const levelNum       = document.getElementById('levelNum');
+    const missionBtn     = document.getElementById('missionBtn');
     const missionDisplay = document.getElementById('missionDisplay');
     const missionSection = document.querySelector('.mission-section');
+    const missionLabel   = document.getElementById('missionLabel');
+    const levelupToast   = document.getElementById('levelupToast');
+    const flashOverlay   = document.getElementById('missionFlashOverlay');
 
     function pickRandom(arr, last) {
       let idx;
@@ -218,28 +244,59 @@
     }
 
     missionBtn.addEventListener('click', () => {
-      const mIdx = pickRandom(missions, lastMissionIdx);
-      const gIdx = pickRandom(gradients, lastGradientIdx);
-      lastMissionIdx = mIdx;
-      lastGradientIdx = gIdx;
+      const isRare = Math.random() < 0.15;
+      const pool   = isRare ? rareMissions : missions;
+
+      const mIdx = pickRandom(pool, isRare ? -1 : lastMissionIdx);
+      if (!isRare) lastMissionIdx = mIdx;
+
+      const bgArr = isRare ? rareGradients : gradients;
+      const gIdx  = pickRandom(bgArr, isRare ? -1 : lastGradientIdx);
+      if (!isRare) lastGradientIdx = gIdx;
+
+      // Rare / Normal 切り替え
+      if (isRare) {
+        missionSection.classList.add('mission-section--rare');
+        missionLabel.textContent = '⭐ RARE MISSION';
+        missionLabel.classList.add('mission-label--rare');
+      } else {
+        missionSection.classList.remove('mission-section--rare');
+        missionLabel.textContent = 'NEXT MISSION';
+        missionLabel.classList.remove('mission-label--rare');
+      }
 
       // テキストアニメーション
       missionDisplay.classList.add('mission-display--flash');
       setTimeout(() => {
-        missionText.textContent = missions[mIdx];
+        missionText.textContent = pool[mIdx];
         missionDisplay.classList.remove('mission-display--flash');
         missionDisplay.classList.add('mission-display--in');
         setTimeout(() => missionDisplay.classList.remove('mission-display--in'), 400);
       }, 200);
 
       // 背景グラデーション
-      missionSection.style.setProperty('--mission-bg', gradients[gIdx]);
+      missionSection.style.setProperty('--mission-bg', bgArr[gIdx]);
 
-      // LEVEL UP
+      // LEVEL UP — 数字アニメーション
       level++;
       levelNum.textContent = level;
-      levelNum.parentElement.classList.add('mission-level--up');
-      setTimeout(() => levelNum.parentElement.classList.remove('mission-level--up'), 500);
+      const levelEl = levelNum.parentElement;
+      levelEl.classList.remove('mission-level--up');
+      void levelEl.offsetWidth;
+      levelEl.classList.add('mission-level--up');
+      setTimeout(() => levelEl.classList.remove('mission-level--up'), 700);
+
+      // LEVEL UP — トースト
+      levelupToast.classList.remove('levelup-toast--show');
+      void levelupToast.offsetWidth;
+      levelupToast.classList.add('levelup-toast--show');
+      setTimeout(() => levelupToast.classList.remove('levelup-toast--show'), 1000);
+
+      // LEVEL UP — フラッシュオーバーレイ
+      flashOverlay.classList.remove('mission-flash-overlay--show');
+      void flashOverlay.offsetWidth;
+      flashOverlay.classList.add('mission-flash-overlay--show');
+      setTimeout(() => flashOverlay.classList.remove('mission-flash-overlay--show'), 600);
     });
   </script>
 </body>
