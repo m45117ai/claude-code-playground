@@ -134,12 +134,28 @@
     <!-- NEXT MISSION -->
     <section class="mission-section reveal" style="--delay: 500ms">
       <div class="mission-flash-overlay" id="missionFlashOverlay"></div>
+      <div class="mission-flash-overlay mission-complete-flash-overlay" id="completeFlashOverlay"></div>
       <div class="mission-header">
         <div class="mission-header__left">
           <span class="mission-label" id="missionLabel">NEXT MISSION</span>
-          <span class="mission-level" id="missionLevel">LEVEL <span id="levelNum">1</span></span>
         </div>
         <div class="mission-scanline"></div>
+      </div>
+      <div class="mission-stats">
+        <div class="mission-stat">
+          <span class="mission-stat__val" id="statLevel">1</span>
+          <span class="mission-stat__label">LEVEL</span>
+        </div>
+        <div class="mission-stat-divider"></div>
+        <div class="mission-stat">
+          <span class="mission-stat__val" id="statStreak">0</span>
+          <span class="mission-stat__label" id="statStreakLabel">STREAK DAYS</span>
+        </div>
+        <div class="mission-stat-divider"></div>
+        <div class="mission-stat">
+          <span class="mission-stat__val" id="statCompleted">0</span>
+          <span class="mission-stat__label">COMPLETED</span>
+        </div>
       </div>
       <div class="mission-display" id="missionDisplay">
         <div class="mission-cursor"></div>
@@ -150,7 +166,13 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         <span>ACCEPT MISSION</span>
       </button>
+      <button class="mission-complete-btn" id="completeBtn">
+        <span class="mission-btn__glow mission-complete-btn__glow"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>COMPLETE</span>
+      </button>
       <div class="levelup-toast" id="levelupToast">▲ LEVEL UP!</div>
+      <div class="complete-toast" id="completeToast">✓ MISSION COMPLETE</div>
     </section>
 
   </main>
@@ -183,19 +205,16 @@
 
     // ── NEXT MISSION ──
     const missions = [
-      // AI 学習
       'Claude に今日の学びを要約させてみる',
       'プロンプトを1つ改善して結果を比べてみる',
       'ChatGPT と Claude に同じ質問をして違いをメモする',
       'AIに「自分のワークフロー」を分析させてみる',
       '気になるAIツールを5分だけ触ってみる',
-      // GitHub
       'GitHubで気になるリポジトリを1つスターする',
       'git add → commit → push を実際にやってみる',
       'Issuesを1件読んで内容を理解する',
       'ローカルで新しいブランチを切って何か試す',
       'gitignore に何が書かれているか確認する',
-      // 小さなアウトプット
       'README.md に一行、今日の発見を書く',
       '学んだことを140字でXに投稿する',
       'Markdown で今日の学習ログを書く',
@@ -224,18 +243,52 @@
       'linear-gradient(135deg, #2a1200 0%, #1e0c00 50%, #120800 100%)',
     ];
 
-    let level = 1;
-    let lastMissionIdx = -1;
+    // ── Stats (localStorage) ──
+    let level     = parseInt(localStorage.getItem('mission_level')     || '1');
+    let streak    = parseInt(localStorage.getItem('mission_streak')    || '0');
+    let completed = parseInt(localStorage.getItem('mission_completed') || '0');
+    let lastCompletedDate = localStorage.getItem('mission_lastDate')   || '';
+
+    let lastMissionIdx  = -1;
     let lastGradientIdx = -1;
 
     const missionText    = document.getElementById('missionText');
-    const levelNum       = document.getElementById('levelNum');
     const missionBtn     = document.getElementById('missionBtn');
     const missionDisplay = document.getElementById('missionDisplay');
     const missionSection = document.querySelector('.mission-section');
     const missionLabel   = document.getElementById('missionLabel');
     const levelupToast   = document.getElementById('levelupToast');
     const flashOverlay   = document.getElementById('missionFlashOverlay');
+    const completeBtn          = document.getElementById('completeBtn');
+    const completeToastEl      = document.getElementById('completeToast');
+    const completeFlashOverlay = document.getElementById('completeFlashOverlay');
+    const statLevelEl       = document.getElementById('statLevel');
+    const statStreakEl      = document.getElementById('statStreak');
+    const statStreakLabelEl = document.getElementById('statStreakLabel');
+    const statCompletedEl   = document.getElementById('statCompleted');
+
+    function saveStats() {
+      localStorage.setItem('mission_level',     level);
+      localStorage.setItem('mission_streak',    streak);
+      localStorage.setItem('mission_completed', completed);
+      localStorage.setItem('mission_lastDate',  lastCompletedDate);
+    }
+
+    function getToday() {
+      const d = new Date();
+      return d.getFullYear() + '-'
+        + String(d.getMonth() + 1).padStart(2, '0') + '-'
+        + String(d.getDate()).padStart(2, '0');
+    }
+
+    function updateStatsDisplay() {
+      statLevelEl.textContent     = level;
+      statStreakEl.textContent    = streak;
+      statStreakLabelEl.textContent = streak === 1 ? 'STREAK DAY' : 'STREAK DAYS';
+      statCompletedEl.textContent = completed;
+    }
+
+    updateStatsDisplay();
 
     function pickRandom(arr, last) {
       let idx;
@@ -243,6 +296,7 @@
       return idx;
     }
 
+    // ── ACCEPT MISSION ──
     missionBtn.addEventListener('click', () => {
       const isRare = Math.random() < 0.15;
       const pool   = isRare ? rareMissions : missions;
@@ -254,7 +308,6 @@
       const gIdx  = pickRandom(bgArr, isRare ? -1 : lastGradientIdx);
       if (!isRare) lastGradientIdx = gIdx;
 
-      // Rare / Normal 切り替え
       if (isRare) {
         missionSection.classList.add('mission-section--rare');
         missionLabel.textContent = '⭐ RARE MISSION';
@@ -265,7 +318,6 @@
         missionLabel.classList.remove('mission-label--rare');
       }
 
-      // テキストアニメーション
       missionDisplay.classList.add('mission-display--flash');
       setTimeout(() => {
         missionText.textContent = pool[mIdx];
@@ -274,29 +326,73 @@
         setTimeout(() => missionDisplay.classList.remove('mission-display--in'), 400);
       }, 200);
 
-      // 背景グラデーション
       missionSection.style.setProperty('--mission-bg', bgArr[gIdx]);
 
-      // LEVEL UP — 数字アニメーション
+      // LEVEL UP
       level++;
-      levelNum.textContent = level;
-      const levelEl = levelNum.parentElement;
-      levelEl.classList.remove('mission-level--up');
-      void levelEl.offsetWidth;
-      levelEl.classList.add('mission-level--up');
-      setTimeout(() => levelEl.classList.remove('mission-level--up'), 700);
+      saveStats();
+      updateStatsDisplay();
 
-      // LEVEL UP — トースト
+      statLevelEl.classList.remove('mission-stat__val--up');
+      void statLevelEl.offsetWidth;
+      statLevelEl.classList.add('mission-stat__val--up');
+      setTimeout(() => statLevelEl.classList.remove('mission-stat__val--up'), 700);
+
       levelupToast.classList.remove('levelup-toast--show');
       void levelupToast.offsetWidth;
       levelupToast.classList.add('levelup-toast--show');
       setTimeout(() => levelupToast.classList.remove('levelup-toast--show'), 1000);
 
-      // LEVEL UP — フラッシュオーバーレイ
       flashOverlay.classList.remove('mission-flash-overlay--show');
       void flashOverlay.offsetWidth;
       flashOverlay.classList.add('mission-flash-overlay--show');
       setTimeout(() => flashOverlay.classList.remove('mission-flash-overlay--show'), 600);
+    });
+
+    // ── COMPLETE ──
+    completeBtn.addEventListener('click', () => {
+      completed++;
+      const today = getToday();
+      let streakUp = false;
+      if (lastCompletedDate !== today) {
+        streak++;
+        lastCompletedDate = today;
+        streakUp = true;
+      }
+      saveStats();
+      updateStatsDisplay();
+
+      // COMPLETED 数値アニメーション
+      statCompletedEl.classList.remove('mission-stat__val--complete-up');
+      void statCompletedEl.offsetWidth;
+      statCompletedEl.classList.add('mission-stat__val--complete-up');
+      setTimeout(() => statCompletedEl.classList.remove('mission-stat__val--complete-up'), 500);
+
+      // STREAK アニメーション (増えた時のみ)
+      if (streakUp) {
+        statStreakEl.classList.remove('mission-stat__val--streak-up');
+        void statStreakEl.offsetWidth;
+        statStreakEl.classList.add('mission-stat__val--streak-up');
+        setTimeout(() => statStreakEl.classList.remove('mission-stat__val--streak-up'), 700);
+      }
+
+      // ボタンフラッシュ
+      completeBtn.classList.remove('mission-complete-btn--flash');
+      void completeBtn.offsetWidth;
+      completeBtn.classList.add('mission-complete-btn--flash');
+      setTimeout(() => completeBtn.classList.remove('mission-complete-btn--flash'), 500);
+
+      // グリーンフラッシュオーバーレイ
+      completeFlashOverlay.classList.remove('mission-flash-overlay--show');
+      void completeFlashOverlay.offsetWidth;
+      completeFlashOverlay.classList.add('mission-flash-overlay--show');
+      setTimeout(() => completeFlashOverlay.classList.remove('mission-flash-overlay--show'), 600);
+
+      // MISSION COMPLETE トースト
+      completeToastEl.classList.remove('complete-toast--show');
+      void completeToastEl.offsetWidth;
+      completeToastEl.classList.add('complete-toast--show');
+      setTimeout(() => completeToastEl.classList.remove('complete-toast--show'), 1200);
     });
   </script>
 </body>
