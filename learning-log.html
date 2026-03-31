@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学習ログ自動整形 — Log Formatter</title>
+  <link rel="stylesheet" href="learning-log.css">
+</head>
+<body>
+  <div class="bg-blur bg-blur--1"></div>
+  <div class="bg-blur bg-blur--2"></div>
+
+  <main class="container">
+
+    <!-- Header -->
+    <header class="page-header reveal" style="--delay: 0ms">
+      <div class="page-header__inner">
+        <div class="header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div>
+          <p class="page-header__label">LEARNING LOG FORMATTER</p>
+          <h1 class="page-header__title">学習ログ自動整形</h1>
+        </div>
+      </div>
+      <div class="date-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="todayDate"></span>
+      </div>
+    </header>
+
+    <!-- Inputs -->
+    <div class="inputs reveal" style="--delay: 120ms">
+
+      <div class="input-card">
+        <div class="input-card__header">
+          <span class="input-card__icon input-card__icon--green">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <label class="input-card__label" for="did">今日やったこと</label>
+          <span class="input-card__hint">1行 = 1項目</span>
+        </div>
+        <textarea id="did" class="log-textarea" rows="4" placeholder="Claude に今日の学びを要約させてみた&#10;プロンプトを改善して精度が上がった"></textarea>
+      </div>
+
+      <div class="input-card">
+        <div class="input-card__header">
+          <span class="input-card__icon input-card__icon--cyan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          <label class="input-card__label" for="learned">学んだこと</label>
+          <span class="input-card__hint">1行 = 1項目</span>
+        </div>
+        <textarea id="learned" class="log-textarea" rows="4" placeholder="プロンプトに役割を与えると精度が上がる&#10;Few-shot の例示が出力品質に大きく影響する"></textarea>
+      </div>
+
+      <div class="input-card">
+        <div class="input-card__header">
+          <span class="input-card__icon input-card__icon--purple">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </span>
+          <label class="input-card__label" for="next">次にやること</label>
+          <span class="input-card__hint">1行 = 1項目</span>
+        </div>
+        <textarea id="next" class="log-textarea" rows="4" placeholder="Chain-of-Thought プロンプトを試す&#10;GitHub にアウトプットをまとめて push する"></textarea>
+      </div>
+
+    </div>
+
+    <!-- Generate button -->
+    <div class="action-row reveal" style="--delay: 240ms">
+      <button class="generate-btn" id="generateBtn">
+        <span class="generate-btn__glow"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span>GENERATE LOG</span>
+      </button>
+    </div>
+
+    <!-- Output -->
+    <section class="output-section" id="outputSection">
+      <div class="output-flash-overlay" id="outputFlash"></div>
+      <div class="output-section__header">
+        <div class="output-header__left">
+          <span class="output-label">OUTPUT</span>
+          <span class="output-format-badge">Markdown</span>
+        </div>
+        <div class="output-header__actions">
+          <button class="copy-btn" id="copyBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyLabel">COPY</span>
+          </button>
+          <button class="save-btn" id="saveBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span id="saveLabel">SAVE</span>
+          </button>
+        </div>
+      </div>
+      <pre class="output-pre" id="outputPre"></pre>
+    </section>
+
+    <!-- Saved Logs -->
+    <section class="saved-logs-section reveal" id="savedLogsSection" style="--delay: 0ms">
+      <div class="saved-logs-header">
+        <div class="saved-logs-header__left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span class="saved-logs-label">SAVED LOGS</span>
+          <span class="saved-logs-count" id="savedLogsCount"></span>
+        </div>
+        <button class="clear-all-btn" id="clearAllBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          CLEAR ALL
+        </button>
+      </div>
+      <div id="savedLogsList"></div>
+      <p class="saved-logs-empty" id="savedLogsEmpty">保存されたログはありません</p>
+    </section>
+
+  </main>
+
+  <div class="save-toast" id="saveToast">✓ LOG SAVED</div>
+  <script src="learning-log.js"></script>
+</body>
+</html>
