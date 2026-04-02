@@ -651,6 +651,41 @@ body {
   color: #fca5a5;
 }
 
+/* ── Tag filter bar ── */
+
+#tagFilterBar {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tag-filter-btn {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: rgba(139, 92, 246, 0.06);
+  color: rgba(167, 139, 250, 0.55);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tag-filter-btn:hover {
+  background: rgba(139, 92, 246, 0.14);
+  border-color: rgba(139, 92, 246, 0.38);
+  color: #c4b5fd;
+}
+
+.tag-filter-btn--active {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(139, 92, 246, 0.55);
+  color: #e9d5ff;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.18);
+}
+
 .logs-count-text {
   font-size: 13px;
   color: rgba(167, 139, 250, 0.6);
@@ -828,5 +863,10 @@ body {
   .log-tag {
     font-size: 9px;
     padding: 2px 8px;
+  }
+
+  .tag-filter-btn {
+    font-size: 10px;
+    padding: 4px 12px;
   }
 }

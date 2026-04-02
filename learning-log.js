@@ -130,29 +130,82 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function displayName(tag) {
+  const map = {
+    'github':      'GitHub',
+    'claude code': 'Claude Code',
+  };
+  return map[tag.toLowerCase()] || tag;
+}
+
+let activeFilter = 'すべて';
+
 function renderLogs() {
   const logs = loadLogs();
   const count = logs.length;
 
+  // 全ログからタグを重複なく収集
+  const allTags = [...new Set(logs.flatMap(l => l.tags || []))];
+
+  // 選択中のタグが消えていたらリセット
+  if (activeFilter !== 'すべて' && !allTags.includes(activeFilter)) {
+    activeFilter = 'すべて';
+  }
+
+  // フィルターバーを描画
+  const tagFilterBar = document.getElementById('tagFilterBar');
+  if (allTags.length > 0) {
+    tagFilterBar.innerHTML = ['すべて', ...allTags].map(tag =>
+      `<button class="tag-filter-btn${tag === activeFilter ? ' tag-filter-btn--active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(displayName(tag))}</button>`
+    ).join('');
+    tagFilterBar.querySelectorAll('.tag-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.tag;
+        renderLogs();
+      });
+    });
+    tagFilterBar.style.display = 'flex';
+  } else {
+    tagFilterBar.innerHTML = '';
+    tagFilterBar.style.display = 'none';
+  }
+
+  // 選択中タグでログを絞り込む
+  const filtered = activeFilter === 'すべて'
+    ? logs
+    : logs.filter(l => l.tags && l.tags.includes(activeFilter));
+
   savedLogsCountEl.textContent = count > 0 ? count : '';
-  logsCountText.textContent    = count > 0 ? `保存したログ: ${count}件` : '';
+  logsCountText.textContent    = count === 0 ? ''
+    : activeFilter === 'すべて' ? `保存したログ: ${count}件`
+    : `${activeFilter}: ${filtered.length}件 / 全${count}件`;
   clearAllBtn.style.display    = count > 1 ? 'inline-flex' : 'none';
-  savedLogsEmpty.style.display = count === 0 ? 'block' : 'none';
 
   if (count === 0) {
-    savedLogsList.innerHTML = '';
+    savedLogsEmpty.textContent   = '保存されたログはありません';
+    savedLogsEmpty.style.display = 'block';
+    savedLogsList.innerHTML      = '';
     return;
   }
 
+  if (filtered.length === 0) {
+    savedLogsEmpty.textContent   = `「${activeFilter}」のログはありません`;
+    savedLogsEmpty.style.display = 'block';
+    savedLogsList.innerHTML      = '';
+    return;
+  }
+
+  savedLogsEmpty.style.display = 'none';
+
   // newest first
-  const sorted = [...logs].sort((a, b) => b.id - a.id);
+  const sorted = [...filtered].sort((a, b) => b.id - a.id);
 
   const tagColors = ['purple', 'cyan', 'green', 'pink'];
 
   savedLogsList.innerHTML = sorted.map(log => {
     const tagsHtml = (log.tags && log.tags.length > 0)
       ? `<div class="log-item__tags">${log.tags.map((t, i) =>
-          `<span class="log-tag log-tag--${tagColors[i % tagColors.length]}">${escapeHtml(t)}</span>`
+          `<span class="log-tag log-tag--${tagColors[i % tagColors.length]}">${escapeHtml(displayName(t))}</span>`
         ).join('')}</div>`
       : '';
 
