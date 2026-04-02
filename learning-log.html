@@ -65,6 +65,17 @@
         <textarea id="next" class="log-textarea" rows="4" placeholder="Chain-of-Thought プロンプトを試す&#10;GitHub にアウトプットをまとめて push する"></textarea>
       </div>
 
+      <div class="input-card input-card--tag">
+        <div class="input-card__header">
+          <span class="input-card__icon input-card__icon--pink">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </span>
+          <label class="input-card__label" for="tagInput">タグ</label>
+          <span class="input-card__hint">カンマ区切り</span>
+        </div>
+        <input type="text" id="tagInput" class="tag-input" placeholder="Claude Code, GitHub, JavaScript">
+      </div>
+
     </div>
 
     <!-- Generate button -->
@@ -111,6 +122,7 @@
           CLEAR ALL
         </button>
       </div>
+      <p class="logs-count-text" id="logsCountText"></p>
       <div id="savedLogsList"></div>
       <p class="saved-logs-empty" id="savedLogsEmpty">保存されたログはありません</p>
     </section>

@@ -46,6 +46,8 @@ const savedLogsList       = document.getElementById('savedLogsList');
 const savedLogsCountEl    = document.getElementById('savedLogsCount');
 const savedLogsEmpty      = document.getElementById('savedLogsEmpty');
 const clearAllBtn         = document.getElementById('clearAllBtn');
+const logsCountText       = document.getElementById('logsCountText');
+const tagInput            = document.getElementById('tagInput');
 
 // ── Format helpers ──
 function textToList(text) {
@@ -133,6 +135,7 @@ function renderLogs() {
   const count = logs.length;
 
   savedLogsCountEl.textContent = count > 0 ? count : '';
+  logsCountText.textContent    = count > 0 ? `保存したログ: ${count}件` : '';
   clearAllBtn.style.display    = count > 1 ? 'inline-flex' : 'none';
   savedLogsEmpty.style.display = count === 0 ? 'block' : 'none';
 
@@ -144,7 +147,16 @@ function renderLogs() {
   // newest first
   const sorted = [...logs].sort((a, b) => b.id - a.id);
 
-  savedLogsList.innerHTML = sorted.map(log => `
+  const tagColors = ['purple', 'cyan', 'green', 'pink'];
+
+  savedLogsList.innerHTML = sorted.map(log => {
+    const tagsHtml = (log.tags && log.tags.length > 0)
+      ? `<div class="log-item__tags">${log.tags.map((t, i) =>
+          `<span class="log-tag log-tag--${tagColors[i % tagColors.length]}">${escapeHtml(t)}</span>`
+        ).join('')}</div>`
+      : '';
+
+    return `
     <div class="log-item" id="log-item-${log.id}">
       <div class="log-item__header">
         <span class="log-item__date">${formatTimestamp(log.id)}</span>
@@ -153,9 +165,10 @@ function renderLogs() {
           DELETE
         </button>
       </div>
+      ${tagsHtml}
       <pre class="log-item__pre">${escapeHtml(log.markdown)}</pre>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   savedLogsList.querySelectorAll('.log-item__delete').forEach(btn => {
     btn.addEventListener('click', () => deleteLog(Number(btn.dataset.id)));
@@ -177,8 +190,13 @@ saveBtn.addEventListener('click', () => {
   const markdown = outputPre.textContent;
   if (!markdown) return;
 
+  const tags = tagInput.value
+    .split(',')
+    .map(t => t.trim())
+    .filter(t => t.length > 0);
+
   const logs = loadLogs();
-  logs.push({ id: Date.now(), markdown });
+  logs.push({ id: Date.now(), markdown, tags });
   saveLogs(logs);
   renderLogs();
 
