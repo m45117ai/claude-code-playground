@@ -48,6 +48,7 @@ const savedLogsEmpty      = document.getElementById('savedLogsEmpty');
 const clearAllBtn         = document.getElementById('clearAllBtn');
 const logsCountText       = document.getElementById('logsCountText');
 const tagInput            = document.getElementById('tagInput');
+const tagSuggestionsEl    = document.getElementById('tagSuggestions');
 
 // ── Format helpers ──
 function textToList(text) {
@@ -137,6 +138,62 @@ function displayName(tag) {
   };
   return map[tag.toLowerCase()] || tag;
 }
+
+// ── Tag suggestions ──
+function renderTagSuggestions() {
+  // 大文字小文字を区別せず重複排除（最初に登場した表記を保持）
+  const seen = new Set();
+  const allTags = loadLogs()
+    .flatMap(l => l.tags || [])
+    .filter(tag => {
+      const key = tag.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+  // 入力済みタグを小文字の Set で管理
+  const entered = new Set(
+    tagInput.value
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(t => t.length > 0)
+  );
+
+  // 大文字小文字を無視して、未入力のものだけ候補に出す
+  const suggestions = allTags.filter(tag => !entered.has(tag.toLowerCase()));
+
+  if (suggestions.length === 0) {
+    tagSuggestionsEl.innerHTML = '';
+    return;
+  }
+
+  tagSuggestionsEl.innerHTML = suggestions.map(tag =>
+    `<button type="button" class="tag-suggestion-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(displayName(tag))}</button>`
+  ).join('');
+
+  tagSuggestionsEl.querySelectorAll('.tag-suggestion-btn').forEach(btn => {
+    // mousedown: blur より先に発火するので、フォーカスが外れる前にタグを追加できる
+    btn.addEventListener('mousedown', e => {
+      e.preventDefault();
+      addTagToInput(btn.dataset.tag);
+    });
+  });
+}
+
+function addTagToInput(tag) {
+  const current = tagInput.value.trim().replace(/,\s*$/, '');
+  tagInput.value = current ? `${current}, ${tag}` : tag;
+  renderTagSuggestions();
+  tagInput.focus();
+}
+
+tagInput.addEventListener('focus', () => renderTagSuggestions());
+tagInput.addEventListener('input', () => renderTagSuggestions());
+tagInput.addEventListener('blur',  () => {
+  // 少し遅らせて、候補ボタンの mousedown より後にクリアされるようにする
+  setTimeout(() => { tagSuggestionsEl.innerHTML = ''; }, 150);
+});
 
 let activeFilter = 'すべて';
 

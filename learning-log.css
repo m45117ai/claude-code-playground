@@ -367,6 +367,42 @@ body {
   border-color: rgba(236, 72, 153, 0.25);
 }
 
+/* ── Tag suggestions ── */
+
+.tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(236, 72, 153, 0.1);
+  min-height: 0;
+}
+
+.tag-suggestions:empty {
+  display: none;
+}
+
+.tag-suggestion-btn {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  background: rgba(236, 72, 153, 0.07);
+  color: rgba(249, 168, 212, 0.7);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tag-suggestion-btn:hover {
+  background: rgba(236, 72, 153, 0.16);
+  border-color: rgba(236, 72, 153, 0.45);
+  color: #f9a8d4;
+}
+
 /* ── Generate button ── */
 
 .action-row {
@@ -868,5 +904,10 @@ body {
   .tag-filter-btn {
     font-size: 10px;
     padding: 4px 12px;
+  }
+
+  .tag-suggestion-btn {
+    font-size: 11px;
+    padding: 6px 14px;
   }
 }
