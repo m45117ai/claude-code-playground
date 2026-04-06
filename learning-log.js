@@ -141,10 +141,11 @@ function displayName(tag) {
 
 // ── Tag suggestions ──
 function renderTagSuggestions() {
-  // 大文字小文字を区別せず重複排除（最初に登場した表記を保持）
+  // displayName で正規化してから、大文字小文字を区別せず重複排除
   const seen = new Set();
   const allTags = loadLogs()
     .flatMap(l => l.tags || [])
+    .map(tag => displayName(tag))          // "Github" → "GitHub" に正規化
     .filter(tag => {
       const key = tag.toLowerCase();
       if (seen.has(key)) return false;
@@ -169,7 +170,7 @@ function renderTagSuggestions() {
   }
 
   tagSuggestionsEl.innerHTML = suggestions.map(tag =>
-    `<button type="button" class="tag-suggestion-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(displayName(tag))}</button>`
+    `<button type="button" class="tag-suggestion-btn" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
   ).join('');
 
   tagSuggestionsEl.querySelectorAll('.tag-suggestion-btn').forEach(btn => {
