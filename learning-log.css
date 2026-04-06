@@ -616,6 +616,33 @@ body {
   animation: saveToastAnim 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+/* ── Error toast ── */
+
+.error-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fca5a5;
+  background: rgba(60, 4, 4, 0.92);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  backdrop-filter: blur(16px);
+  padding: 10px 22px;
+  border-radius: 999px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.error-toast--show {
+  animation: saveToastAnim 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 /* ── Saved Logs section ── */
 
 .saved-logs-section {

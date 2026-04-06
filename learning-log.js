@@ -41,6 +41,7 @@ const outputFlash   = document.getElementById('outputFlash');
 const saveBtn             = document.getElementById('saveBtn');
 const saveLabel           = document.getElementById('saveLabel');
 const saveToast           = document.getElementById('saveToast');
+const errorToast          = document.getElementById('errorToast');
 const savedLogsSection    = document.getElementById('savedLogsSection');
 const savedLogsList       = document.getElementById('savedLogsList');
 const savedLogsCountEl    = document.getElementById('savedLogsCount');
@@ -300,6 +301,18 @@ function deleteLog(id) {
 saveBtn.addEventListener('click', () => {
   const markdown = outputPre.textContent;
   if (!markdown) return;
+
+  const didVal     = document.getElementById('did').value.trim();
+  const learnedVal = document.getElementById('learned').value.trim();
+  const nextVal    = document.getElementById('next').value.trim();
+
+  if (!didVal && !learnedVal && !nextVal) {
+    errorToast.classList.remove('error-toast--show');
+    void errorToast.offsetWidth;
+    errorToast.classList.add('error-toast--show');
+    setTimeout(() => errorToast.classList.remove('error-toast--show'), 2500);
+    return;
+  }
 
   const tags = tagInput.value
     .split(',')
