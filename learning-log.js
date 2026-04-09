@@ -47,6 +47,8 @@ const savedLogsList       = document.getElementById('savedLogsList');
 const savedLogsCountEl    = document.getElementById('savedLogsCount');
 const savedLogsEmpty      = document.getElementById('savedLogsEmpty');
 const clearAllBtn         = document.getElementById('clearAllBtn');
+const exportBtn           = document.getElementById('exportBtn');
+const exportLabel         = document.getElementById('exportLabel');
 const logsCountText       = document.getElementById('logsCountText');
 const tagInput            = document.getElementById('tagInput');
 const tagSuggestionsEl    = document.getElementById('tagSuggestions');
@@ -239,6 +241,7 @@ function renderLogs() {
     : activeFilter === 'すべて' ? `保存したログ: ${count}件`
     : `${activeFilter}: ${filtered.length}件 / 全${count}件`;
   clearAllBtn.style.display    = count > 1 ? 'inline-flex' : 'none';
+  exportBtn.style.display      = count > 0 ? 'inline-flex' : 'none';
 
   if (count === 0) {
     savedLogsEmpty.textContent   = '保存されたログはありません';
@@ -347,6 +350,32 @@ saveBtn.addEventListener('click', () => {
 clearAllBtn.addEventListener('click', () => {
   saveLogs([]);
   renderLogs();
+});
+
+exportBtn.addEventListener('click', () => {
+  const logs = loadLogs();
+  if (logs.length === 0) return;
+
+  const sorted = [...logs].sort((a, b) => a.id - b.id);
+  const content = sorted.map(l => l.markdown).join('\n\n---\n\n');
+
+  const d = new Date();
+  const filename = `learning-logs-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.md`;
+
+  const blob = new Blob([content], { type: 'text/plain; charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  exportLabel.textContent = 'EXPORTED!';
+  exportBtn.classList.add('export-btn--done');
+  setTimeout(() => {
+    exportLabel.textContent = 'EXPORT';
+    exportBtn.classList.remove('export-btn--done');
+  }, 2000);
 });
 
 // Init
