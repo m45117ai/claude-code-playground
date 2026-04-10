@@ -317,10 +317,12 @@ saveBtn.addEventListener('click', () => {
     return;
   }
 
-  const tags = tagInput.value
-    .split(',')
-    .map(t => t.trim())
-    .filter(t => t.length > 0);
+  const tags = [...new Set(
+    tagInput.value
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0)
+  )];
 
   const logs = loadLogs();
   logs.push({ id: Date.now(), markdown, tags });
