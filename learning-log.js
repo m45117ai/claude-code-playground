@@ -320,7 +320,7 @@ saveBtn.addEventListener('click', () => {
   const tags = [...new Set(
     tagInput.value
       .split(',')
-      .map(t => t.trim())
+      .map(t => t.trim().toLowerCase())
       .filter(t => t.length > 0)
   )];
 
