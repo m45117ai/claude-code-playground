@@ -29,7 +29,8 @@ function getTodayDisplay() {
   return `${y}.${m}.${day}  ${w}`;
 }
 
-document.getElementById('todayDate').textContent = getTodayDisplay();
+const dateInput = document.getElementById('dateInput');
+dateInput.value = getToday();
 
 // ── Elements ──
 const generateBtn   = document.getElementById('generateBtn');
@@ -50,8 +51,8 @@ const clearAllBtn         = document.getElementById('clearAllBtn');
 const exportBtn           = document.getElementById('exportBtn');
 const exportLabel         = document.getElementById('exportLabel');
 const logsCountText       = document.getElementById('logsCountText');
-const tagInput            = document.getElementById('tagInput');
-const tagSuggestionsEl    = document.getElementById('tagSuggestions');
+const tagInput         = document.getElementById('tagInput');
+const tagSuggestionsEl = document.getElementById('tagSuggestions');
 
 // ── Format helpers ──
 function textToList(text) {
@@ -69,13 +70,13 @@ generateBtn.addEventListener('click', () => {
   const learnedVal = document.getElementById('learned').value;
   const nextVal    = document.getElementById('next').value;
 
-  const date        = getToday();
+  const date        = dateInput.value || getToday();
   const didList     = didVal.trim()     ? textToList(didVal)     : '- （記録なし）';
   const learnedList = learnedVal.trim() ? textToList(learnedVal) : '- （記録なし）';
   const nextList    = nextVal.trim()    ? textToList(nextVal)    : '- （記録なし）';
 
   const markdown =
-`# 📝 学習ログ — ${date}
+`# ${date} 学習ログ
 
 ## ✅ 今日やったこと
 ${didList}
@@ -118,15 +119,16 @@ function saveLogs(logs) {
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
 }
 
-function formatTimestamp(ts) {
+function formatTimestamp(ts, logDate) {
   const d = new Date(ts);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const w = weekdays[d.getDay()];
-  const h = String(d.getHours()).padStart(2, '0');
+  const h   = String(d.getHours()).padStart(2, '0');
   const min = String(d.getMinutes()).padStart(2, '0');
+  const dateD = logDate ? new Date(logDate + 'T12:00:00') : d;
+  const y   = dateD.getFullYear();
+  const m   = String(dateD.getMonth() + 1).padStart(2, '0');
+  const day = String(dateD.getDate()).padStart(2, '0');
+  const w   = weekdays[dateD.getDay()];
   return `${y}-${m}-${day}  ${w}  ·  ${h}:${min}`;
 }
 
@@ -274,7 +276,7 @@ function renderLogs() {
     return `
     <div class="log-item" id="log-item-${log.id}">
       <div class="log-item__header">
-        <span class="log-item__date">${formatTimestamp(log.id)}</span>
+        <span class="log-item__date">${formatTimestamp(log.id, log.logDate)}</span>
         <button class="log-item__delete" data-id="${log.id}" aria-label="削除">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           DELETE
@@ -325,7 +327,7 @@ saveBtn.addEventListener('click', () => {
   )];
 
   const logs = loadLogs();
-  logs.push({ id: Date.now(), markdown, tags });
+  logs.push({ id: Date.now(), markdown, tags, logDate: dateInput.value || getToday() });
   saveLogs(logs);
   renderLogs();
 
