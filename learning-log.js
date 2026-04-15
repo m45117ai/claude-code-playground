@@ -363,8 +363,7 @@ exportBtn.addEventListener('click', () => {
   const sorted = [...logs].sort((a, b) => a.id - b.id);
   const content = sorted.map(l => l.markdown).join('\n\n---\n\n');
 
-  const d = new Date();
-  const filename = `learning-logs-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.md`;
+  const filename = `${dateInput.value || getToday()}-learning-log.md`;
 
   const blob = new Blob([content], { type: 'text/plain; charset=utf-8' });
   const url = URL.createObjectURL(blob);
