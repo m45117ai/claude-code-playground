@@ -360,7 +360,7 @@ exportBtn.addEventListener('click', () => {
   const logs = loadLogs();
   if (logs.length === 0) return;
 
-  const sorted = [...logs].sort((a, b) => a.id - b.id);
+  const sorted = [...logs].sort((a, b) => a.logDate.localeCompare(b.logDate));
   const content = sorted.map(l => l.markdown).join('\n\n---\n\n');
 
   const filename = `all-learning-logs-${getToday()}.md`;
