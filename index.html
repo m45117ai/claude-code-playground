@@ -185,10 +185,13 @@
       root.setAttribute('data-theme', 'dark');
     }
 
+    btn.setAttribute('aria-label', root.getAttribute('data-theme') === 'dark' ? 'ライトモード切替' : 'ダークモード切替');
+
     btn.addEventListener('click', () => {
       const isDark = root.getAttribute('data-theme') === 'dark';
       root.setAttribute('data-theme', isDark ? 'light' : 'dark');
       localStorage.theme = isDark ? 'light' : 'dark';
+      btn.setAttribute('aria-label', isDark ? 'ダークモード切替' : 'ライトモード切替');
     });
 
     // ── Scroll-reveal (Intersection Observer) ──
