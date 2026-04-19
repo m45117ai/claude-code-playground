@@ -161,6 +161,11 @@ body {
   animation: iconSpin 0.5s ease;
 }
 
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
 /* 表示切替 */
 .icon-moon { display: none; }
 
@@ -777,6 +782,11 @@ body {
   transform: translateY(0) scale(0.98);
 }
 
+.mission-complete-btn:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, 0.7);
+  outline-offset: 3px;
+}
+
 .mission-complete-btn--flash {
   animation: completeBtnFlash 0.5s ease forwards;
 }
@@ -989,6 +999,11 @@ body {
 
 .mission-btn:active {
   transform: translateY(0) scale(0.98);
+}
+
+.mission-btn:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.8);
+  outline-offset: 3px;
 }
 
 .mission-btn__glow {
