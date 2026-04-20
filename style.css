@@ -1068,3 +1068,50 @@ body {
     font-size: 18px;
   }
 }
+
+/* ── prefers-reduced-motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  /* 背景 blob の漂流を停止 */
+  .bg-blur--1,
+  .bg-blur--2 { animation: none; }
+
+  /* アバターの浮遊を停止 */
+  .avatar { animation: none; }
+
+  /* テーマ切替ボタン：アイコン回転を停止 */
+  .theme-toggle:hover svg { animation: none; }
+
+  /* グリーンドットのパルスを停止 */
+  .pulse { animation: none; }
+
+  /* スクロールリビール：トランジションを短縮し transform を除去 */
+  .reveal {
+    transform: none;
+    transition: opacity 0.2s ease;
+  }
+  .reveal.is-visible { transform: none; }
+
+  /* カードのホバー浮き上がりを停止 */
+  .card:hover { transform: none; }
+
+  /* コンタクト行のスライドを停止 */
+  .contact-item:hover { transform: none; }
+
+  /* スキルタグのポップを停止 */
+  .skill:hover { animation: none; }
+
+  /* MISSION ボタンのパルスを停止 */
+  .mission-btn { animation: none; }
+
+  /* カーソルの点滅を停止 */
+  .mission-cursor { animation: none; opacity: 1; }
+
+  /* スキャンラインのスライドを停止 */
+  .mission-scanline::after { animation: none; }
+
+  /* RARE MISSION のグロー・シマー・ラベルパルスを停止 */
+  .mission-section--rare { animation: none; }
+  .mission-section--rare .mission-display::after { animation: none; }
+  .mission-label--rare { animation: none; }
+}
