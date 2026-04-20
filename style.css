@@ -501,6 +501,11 @@ body {
   font-weight: 500;
   color: var(--text);
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contact-value:hover {
+  color: var(--purple);
 }
 
 /* ── Responsive ── */
