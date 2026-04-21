@@ -508,6 +508,12 @@ body {
   color: var(--purple);
 }
 
+.contact-value:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 520px) {
